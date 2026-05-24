@@ -30,12 +30,16 @@ class LoginController extends Controller
         $password = $request->password;
         $role     = $request->role;
 
-        // Coba login dengan email atau username
-        $fieldEmail    = ['email'    => $username, 'password' => $password];
-        $fieldUsername = ['username' => $username, 'password' => $password];
+        // Coba login dengan email
+        $loggedIn = Auth::attempt(['email' => $username, 'password' => $password], $request->boolean('remember'));
 
-        $loggedIn = Auth::attempt($fieldEmail, $request->boolean('remember'))
-                 || Auth::attempt($fieldUsername, $request->boolean('remember'));
+        if (!$loggedIn) {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'username')) {
+                $loggedIn = Auth::attempt(['username' => $username, 'password' => $password], $request->boolean('remember'));
+            } else {
+                $loggedIn = Auth::attempt(['name' => $username, 'password' => $password], $request->boolean('remember'));
+            }
+        }
 
         if (!$loggedIn) {
             return back()

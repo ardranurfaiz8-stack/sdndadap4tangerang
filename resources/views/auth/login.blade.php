@@ -140,7 +140,7 @@
         @csrf
 
         <div class="mb-form">
-            <label class="form-label">Username / NIS / Email</label>
+            <label class="form-label">Email</label>
             <input type="text" name="username"
                 class="form-control {{ $errors->has('username') ? 'is-invalid' : '' }}"
                 placeholder="Masukkan username atau email"

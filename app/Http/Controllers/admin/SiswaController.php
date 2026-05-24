@@ -27,7 +27,8 @@ class SiswaController extends Controller
 
     public function create()
     {
-        return view('profil_siswa.create');
+        $kelasList = ['1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B'];
+        return view('profil_siswa.create', compact('kelasList'));
     }
 
     public function store(Request $request)
@@ -71,7 +72,8 @@ class SiswaController extends Controller
 
     public function edit(Siswa $siswa)
     {
-        return view('profil_siswa.edit', compact('siswa'));
+        $kelasList = ['1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B'];
+        return view('profil_siswa.edit', compact('siswa', 'kelasList'));
     }
 
     public function update(Request $request, Siswa $siswa)
