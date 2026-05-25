@@ -19,8 +19,10 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY_PRIVATE }}
+          # password: ${{ secrets.SSH_PASSWORD }}
           # passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 2223
+          debug: true
           script: |
             cd ~/public_html/domains/sdndadap4tangerang.my.id
           
