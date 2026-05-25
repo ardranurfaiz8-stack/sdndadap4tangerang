@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Admin; // ← sesuai folder
+namespace App\Http\Controllers\admin; // ← sesuai folder
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Guru;
 use App\Models\AbsenGuru;
 
-class AbsenguruController extends Controller
+class AbsenGuruController extends Controller
 {
     public function index(Request $request)
     {
