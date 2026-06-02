@@ -106,8 +106,10 @@ class AbsensiswaController extends Controller
 
     public function edit(AbsenSiswa $absenSiswa)
     {
-        $absenSiswa->load('siswa');
-        return view('absen_siswa.edit', compact('absenSiswa'));
+        $absensi = $absenSiswa;
+        $absensi->load('siswa');
+        $siswaList = Siswa::orderBy('nama')->get();
+        return view('absen_siswa.edit', compact('absensi', 'siswaList'));
     }
 
     public function update(Request $request, AbsenSiswa $absenSiswa)

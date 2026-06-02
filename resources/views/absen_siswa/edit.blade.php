@@ -1,4 +1,10 @@
-@extends('guru.layout')
+@php
+    $isAdmin = auth()->check() && auth()->user()->role === 'admin';
+    $layout = $isAdmin ? 'layouts.app' : 'guru.layout';
+    $backRoute = $isAdmin ? route('admin.absen-siswa.show', $absensi->siswa_id) : route('guru.absen_siswa.index');
+    $updateRoute = $isAdmin ? route('admin.absen-siswa.update', $absensi->id) : route('guru.absen_siswa.update', $absensi->id);
+@endphp
+@extends($layout)
 @section('title', 'Edit Absensi Siswa')
 
 @section('content')
@@ -6,7 +12,7 @@
     <div class="card">
         <div class="card-hd">
             <div class="card-title">✏️ Edit Absensi Siswa</div>
-            <a href="{{ route('guru.absen_siswa.index') }}" class="btn btn-s btn-sm">← Kembali</a>
+            <a href="{{ $backRoute }}" class="btn btn-s btn-sm">← Kembali</a>
         </div>
         <div class="card-body">
 
@@ -22,7 +28,7 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('guru.absen_siswa.update', $absensi->id) }}">
+            <form method="POST" action="{{ $updateRoute }}">
                 @csrf @method('PUT')
 
                 <div class="fg">
@@ -62,7 +68,7 @@
                 </div>
 
                 <div style="display:flex;gap:.75rem;justify-content:flex-end;margin-top:1rem;">
-                    <a href="{{ route('guru.absen_siswa.index') }}" class="btn btn-s">Batal</a>
+                    <a href="{{ $backRoute }}" class="btn btn-s">Batal</a>
                     <button type="submit" class="btn btn-r">💾 Simpan</button>
                 </div>
             </form>
