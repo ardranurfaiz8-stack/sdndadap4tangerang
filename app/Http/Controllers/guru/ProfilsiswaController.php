@@ -26,8 +26,8 @@ class ProfilsiswaController extends Controller
 
         $siswa          = $query->orderBy('kelas')->orderBy('nama')->paginate(20);
         $totalSiswa     = Siswa::count();
-        $siswaLaki      = Siswa::where('jenis_kelamin', 'Laki-laki')->count();
-        $siswaPerempuan = Siswa::where('jenis_kelamin', 'Perempuan')->count();
+        $siswaLaki      = Siswa::whereIn('jenis_kelamin', ['L', 'Laki-laki'])->count();
+        $siswaPerempuan = Siswa::whereIn('jenis_kelamin', ['P', 'Perempuan'])->count();
         $jumlahKelas    = Siswa::distinct('kelas')->count('kelas');
 
         return view('guru.profil_siswa', compact(
@@ -48,7 +48,7 @@ class ProfilsiswaController extends Controller
             'nama'          => 'required|string|max:100',
             'nis'           => 'required|string|max:20|unique:siswas,nis',
             'kelas'         => 'required|string|max:5',
-            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+            'jenis_kelamin' => 'required|in:L,P',
             'tanggal_lahir' => 'nullable|date',
             'tempat_lahir'  => 'nullable|string|max:100',
             'nama_orang_tua'=> 'nullable|string|max:100',
@@ -80,7 +80,7 @@ class ProfilsiswaController extends Controller
             'nama'          => 'required|string|max:100',
             'nis'           => 'required|string|max:20|unique:siswas,nis,'.$id,
             'kelas'         => 'required|string|max:5',
-            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+            'jenis_kelamin' => 'required|in:L,P',
             'tanggal_lahir' => 'nullable|date',
             'tempat_lahir'  => 'nullable|string|max:100',
             'nama_orang_tua'=> 'nullable|string|max:100',
@@ -101,11 +101,10 @@ class ProfilsiswaController extends Controller
     {
         $siswa = Siswa::findOrFail($id);
 
-        if ($siswa->absensi()->count() > 0) {
-            return back()->with('error', 'Siswa ini masih memiliki data absensi, tidak dapat dihapus.');
-        }
-
+        // Hapus siswa — semua data terkait (absensi, rekap, profil)
+        // otomatis terhapus oleh MySQL karena ON DELETE CASCADE di migration.
         $siswa->delete();
-        return back()->with('success', 'Data siswa berhasil dihapus! 🗑️');
+
+        return back()->with('success', 'Data siswa berhasil dihapus permanen! 🗑️');
     }
 }

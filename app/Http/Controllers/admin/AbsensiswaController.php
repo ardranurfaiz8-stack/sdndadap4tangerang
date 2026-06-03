@@ -19,31 +19,37 @@ class AbsensiswaController extends Controller
         // Semua kelas unik untuk filter dropdown
         $kelasList = Siswa::whereNotNull('kelas')->distinct()->orderBy('kelas')->pluck('kelas');
 
-        // Query siswa
-        $query = Siswa::orderBy('kelas')->orderBy('nama');
-        if ($kelas)  $query->where('kelas', $kelas);
-        if ($search) $query->where('nama', 'like', "%{$search}%");
-        $siswaList = $query->get();
+        $query = AbsenSiswa::with('siswa')->where('tanggal', $tanggal);
+        
+        if ($kelas) {
+            $query->whereHas('siswa', function($q) use ($kelas) {
+                $q->where('kelas', $kelas);
+            });
+        }
+        
+        if ($search) {
+            $query->whereHas('siswa', function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%");
+            });
+        }
 
-        // Semua absensi hari ini → map by siswa_id
-        $absensiMap = AbsenSiswa::where('tanggal', $tanggal)
-            ->whereIn('siswa_id', $siswaList->pluck('id'))
-            ->get()
-            ->keyBy('siswa_id');
+        $absensiList = $query->get()->sortBy(function($absen) {
+            return ($absen->siswa->kelas ?? '') . '-' . ($absen->siswa->nama ?? '');
+        })->values();
 
         // Summary
         $summary = [
-            'hadir' => $absensiMap->where('status','hadir')->count(),
-            'sakit' => $absensiMap->where('status','sakit')->count(),
-            'izin'  => $absensiMap->where('status','izin')->count(),
-            'alpha' => $absensiMap->where('status','alpha')->count(),
+            'hadir' => $absensiList->where('status','hadir')->count(),
+            'sakit' => $absensiList->where('status','sakit')->count(),
+            'izin'  => $absensiList->where('status','izin')->count(),
+            'alpha' => $absensiList->where('status','alpha')->count(),
         ];
 
         // Untuk modal tambah
         $semuaSiswa = Siswa::orderBy('nama')->get();
 
         return view('absen_siswa.index', compact(
-            'siswaList','absensiMap','summary','tanggal','kelasList','semuaSiswa'
+            'absensiList','summary','tanggal','kelasList','semuaSiswa'
         ));
     }
 
@@ -55,10 +61,14 @@ class AbsensiswaController extends Controller
         if ($request->has('bulk_save')) {
             $statuses = $request->get('statuses', []);
             foreach ($statuses as $siswaId => $status) {
-                AbsenSiswa::updateOrCreate(
-                    ['siswa_id' => $siswaId, 'tanggal' => $tanggal],
-                    ['status'   => $status]
-                );
+                if ($status === '') {
+                    AbsenSiswa::where('siswa_id', $siswaId)->where('tanggal', $tanggal)->delete();
+                } else {
+                    AbsenSiswa::updateOrCreate(
+                        ['siswa_id' => $siswaId, 'tanggal' => $tanggal],
+                        ['status'   => $status]
+                    );
+                }
             }
             return redirect()->route('admin.absen-siswa.index', ['tanggal' => $tanggal])
                 ->with('success', 'Absensi siswa berhasil disimpan!');
@@ -132,8 +142,13 @@ class AbsensiswaController extends Controller
 
     public function destroy(AbsenSiswa $absenSiswa)
     {
-        $tanggal = $absenSiswa->tanggal;
+        // tanggal di-cast sebagai Carbon, perlu toDateString() agar format benar
+        $tanggal = $absenSiswa->tanggal instanceof \Carbon\Carbon
+            ? $absenSiswa->tanggal->toDateString()
+            : $absenSiswa->tanggal;
+
         $absenSiswa->delete();
+
         return redirect()->route('admin.absen-siswa.index', ['tanggal' => $tanggal])
             ->with('success', 'Data absensi berhasil dihapus!');
     }

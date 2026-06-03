@@ -4,25 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Kolom role & username sudah dimasukkan ke create_users_table.
+// File ini dipertahankan agar urutan migration tidak berubah.
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['admin', 'guru', 'kepala_sekolah', 'siswa'])->default('guru');
-        });
+        // no-op: role sudah ada di create_users_table
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        // no-op
     }
 };

@@ -48,16 +48,24 @@
     <div class="card">
         <div class="card-header">
             <span class="card-title">✏️ Edit Profil Siswa</span>
-            @if($siswas->count() > 1)
-            <select onchange="window.location.href='{{ route('admin.siswa.index') }}?siswa_id='+this.value"
-                style="padding:6px 10px;border:1.5px solid var(--gray-200);border-radius:8px;font-family:inherit;font-size:0.8rem;outline:none;">
-                @foreach($siswas as $s)
-                    <option value="{{ $s->id }}" {{ $selectedSiswa->id == $s->id ? 'selected' : '' }}>
-                        {{ $s->nama }}
-                    </option>
-                @endforeach
-            </select>
-            @endif
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                @if($siswas->count() > 1)
+                <select onchange="window.location.href='{{ route('admin.siswa.index') }}?siswa_id='+this.value"
+                    style="padding:6px 10px;border:1.5px solid var(--gray-200);border-radius:8px;font-family:inherit;font-size:0.8rem;outline:none;">
+                    @foreach($siswas as $s)
+                        <option value="{{ $s->id }}" {{ $selectedSiswa->id == $s->id ? 'selected' : '' }}>
+                            {{ $s->nama }}
+                        </option>
+                    @endforeach
+                </select>
+                @endif
+                {{-- Tombol Hapus Siswa --}}
+                <button type="button"
+                    onclick="openModalHapusSiswa({{ $selectedSiswa->id }}, '{{ addslashes($selectedSiswa->nama) }}')"
+                    style="padding:6px 14px;background:#FFEBEE;color:#c0392b;border:1.5px solid #FFCDD2;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;">
+                    🗑️ Hapus Siswa
+                </button>
+            </div>
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('admin.siswa.update', $selectedSiswa->id) }}">
@@ -152,4 +160,46 @@
 </div>
 
 @endif
+
+{{-- MODAL KONFIRMASI HAPUS SISWA --}}
+<div id="modalHapusSiswa" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:999;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:16px;padding:2rem;width:100%;max-width:380px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.2);text-align:center;">
+        <div style="font-size:48px;margin-bottom:0.75rem;">🗑️</div>
+        <h3 style="font-size:1rem;font-weight:800;color:#1a1a2e;margin-bottom:0.5rem;">Hapus Data Siswa?</h3>
+        <p style="font-size:0.83rem;color:#666;margin-bottom:1.5rem;">
+            Data <strong id="hapusSiswaName"></strong> beserta seluruh absensinya
+            akan <strong style="color:#c0392b;">dihapus permanen</strong> dan tidak dapat dikembalikan.
+        </p>
+        <form id="formHapusSiswa" method="POST">
+            @csrf @method('DELETE')
+            <div style="display:flex;gap:0.75rem;justify-content:center;">
+                <button type="submit"
+                    style="padding:10px 28px;background:#c0392b;color:white;border:none;border-radius:10px;font-weight:700;font-size:0.9rem;cursor:pointer;">
+                    🗑️ Ya, Hapus
+                </button>
+                <button type="button" onclick="closeModalHapusSiswa()"
+                    style="padding:10px 28px;background:#f5f5f5;color:#333;border:none;border-radius:10px;font-weight:600;font-size:0.9rem;cursor:pointer;">
+                    Batal
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function openModalHapusSiswa(id, nama) {
+    document.getElementById('hapusSiswaName').textContent = nama;
+    document.getElementById('formHapusSiswa').action = '/admin/siswa/' + id;
+    document.getElementById('modalHapusSiswa').style.display = 'flex';
+}
+function closeModalHapusSiswa() {
+    document.getElementById('modalHapusSiswa').style.display = 'none';
+}
+document.getElementById('modalHapusSiswa').addEventListener('click', function(e) {
+    if (e.target === this) closeModalHapusSiswa();
+});
+</script>
+@endpush
+
 @endsection

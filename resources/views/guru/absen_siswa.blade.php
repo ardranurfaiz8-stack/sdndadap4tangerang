@@ -74,9 +74,10 @@
             <form id="hs-{{ $ab->id }}" method="POST" action="{{ route('guru.absen_siswa.destroy',$ab->id) }}" style="display:none;">
               @csrf @method('DELETE')
             </form>
-            <button class="btn btn-sm" style="background:#FFEBEE;color:#c0392b;border:none;"
-              onclick="if(confirm('Hapus absensi ini?')) document.getElementById('hs-{{ $ab->id }}').submit()">
-              🗑️
+            <button class="btn btn-sm" style="background:#FFF3E0;color:#E65100;border:none;"
+              title="Batalkan Absen Hari Ini"
+              onclick="if(confirm('Batalkan catatan absensi ini? Data siswa tetap aman.')) document.getElementById('hs-{{ $ab->id }}').submit()">
+              🔄
             </button>
           </td>
         </tr>

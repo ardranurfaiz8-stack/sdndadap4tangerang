@@ -14,9 +14,9 @@ class AbsenSiswa extends Model
     protected $fillable = [
         'siswa_id',
         'tanggal',
+        'jam_masuk',
         'status',      // hadir | sakit | izin | alpha
         'keterangan',
-        'dicatat_oleh', // guru_id yang mencatat
     ];
 
     protected $casts = [
@@ -28,10 +28,6 @@ class AbsenSiswa extends Model
         return $this->belongsTo(Siswa::class);
     }
 
-    public function dicatatOleh()
-    {
-        return $this->belongsTo(Guru::class, 'dicatat_oleh');
-    }
 
     public function scopeBulan($query, int $bulan, int $tahun)
     {

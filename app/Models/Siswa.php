@@ -22,6 +22,9 @@ class Siswa extends Model
         'no_telp',
         'nama_orang_tua',
         'foto',
+        'tahun_masuk',
+        'nama_ayah',
+        'nama_ibu',
     ];
 
     protected $casts = [
@@ -34,6 +37,12 @@ class Siswa extends Model
     }
 
     public function absenSiswa()
+    {
+        return $this->hasMany(AbsenSiswa::class);
+    }
+
+    // Alias agar kompatibel dengan kode lama yang memanggil ->absensi()
+    public function absensi()
     {
         return $this->hasMany(AbsenSiswa::class);
     }

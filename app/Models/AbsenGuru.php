@@ -18,7 +18,6 @@ class AbsenGuru extends Model
         'jam_keluar',
         'status',      // hadir | sakit | izin | alpha
         'keterangan',
-        'foto_bukti',
     ];
 
     protected $casts = [

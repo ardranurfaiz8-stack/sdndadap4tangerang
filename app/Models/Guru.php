@@ -3,30 +3,30 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable; // ← yang benar ini
-use App\Models\Absensi;
+use Illuminate\Database\Eloquent\Model;
 
-class Guru extends Authenticatable
+class Guru extends Model
 {
     use HasFactory;
 
     protected $table = 'gurus'; // sesuaikan nama tabel
 
-   protected $fillable = [
-    'nama',
-    'nip',
-    'jabatan',
-    'jenis_kelamin',
-    'no_telp',       // ✅ bukan no_hp
-    'email',
-    'password',
-    'alamat',
-    'mata_pelajaran',
-    'foto',
-];
+    protected $fillable = [
+        'user_id',
+        'nama',
+        'nip',
+        'email',
+        'jenis_kelamin',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'alamat',
+        'no_telp',
+        'mata_pelajaran',
+        'foto',
+    ];
 
-    protected $hidden = [
-        'password',
+    protected $casts = [
+        'tanggal_lahir' => 'date',
     ];
 
 

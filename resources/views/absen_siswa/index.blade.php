@@ -25,6 +25,7 @@
     .status-select.sakit  { border-color: #90CAF9; color: #1565C0; background: #F1F6FB; }
     .status-select.izin   { border-color: #FFE082; color: #F57F17; background: #FFFDF0; }
     .status-select.alpha  { border-color: var(--red-mid); color: var(--red); background: var(--red-pale); }
+    .status-select.belum  { border-color: var(--gray-300); color: var(--gray-500); background: var(--gray-50); }
 
     /* Summary pills */
     .summary-bar {
@@ -170,14 +171,14 @@
 {{-- MODAL HAPUS --}}
 <div id="modalHapus" class="modal-overlay">
     <div style="background:white;border-radius:var(--radius-xl);padding:2rem;width:100%;max-width:380px;margin:1rem;box-shadow:var(--shadow-lg);text-align:center;">
-        <div style="font-size:48px;margin-bottom:0.75rem;">🗑️</div>
-        <h3 style="font-size:1rem;font-weight:800;color:var(--gray-900);margin-bottom:0.5rem;">Hapus Absensi?</h3>
-        <p style="font-size:0.83rem;color:var(--gray-500);margin-bottom:1.5rem;">Data absensi <strong id="hapusNama"></strong> akan dihapus.</p>
+        <div style="font-size:48px;margin-bottom:0.75rem;">🔄</div>
+        <h3 style="font-size:1rem;font-weight:800;color:var(--gray-900);margin-bottom:0.5rem;">Batalkan Absensi?</h3>
+        <p style="font-size:0.83rem;color:var(--gray-500);margin-bottom:1.5rem;">Catatan absensi <strong id="hapusNama"></strong> untuk tanggal ini akan dibatalkan/dihapus. Data siswa tetap aman.</p>
         <form id="formHapus" method="POST">
             @csrf @method('DELETE')
             <div style="display:flex;gap:0.75rem;justify-content:center;">
-                <button type="submit" class="btn btn-danger" style="min-width:120px;">🗑️ Hapus</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModalHapus()">Batal</button>
+                <button type="submit" class="btn btn-danger" style="min-width:120px;background:#e67e22;border-color:#d35400;">🔄 Batalkan</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModalHapus()">Tutup</button>
             </div>
         </form>
     </div>
@@ -259,10 +260,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($siswaList as $i => $siswa)
+                    @forelse($absensiList as $i => $absen)
                     @php
-                        $absen = $absensiMap[$siswa->id] ?? null;
-                        $currentStatus = $absen ? $absen->status : 'hadir';
+                        $siswa = $absen->siswa;
+                        $currentStatus = $absen->status;
                     @endphp
                     <tr>
                         <td style="font-weight:700;color:var(--gray-500);">{{ $i + 1 }}</td>
@@ -270,10 +271,11 @@
                         <td><span style="font-family:monospace;font-size:0.75rem;color:var(--gray-500);">{{ $siswa->nis ?? '-' }}</span></td>
                         <td><span class="kelas-badge">{{ $siswa->kelas ?? '-' }}</span></td>
                         <td>
-                            <select class="status-select {{ $currentStatus }}"
+                            <select class="status-select {{ $currentStatus ? $currentStatus : 'belum' }}"
                                 id="status_{{ $siswa->id }}"
                                 data-siswa-id="{{ $siswa->id }}"
                                 onchange="updateStatusStyle(this)">
+                                <option value="" {{ $currentStatus == '' ? 'selected' : '' }}>⚪ Belum Absen</option>
                                 <option value="hadir" {{ $currentStatus == 'hadir' ? 'selected' : '' }}>✅ Hadir</option>
                                 <option value="sakit" {{ $currentStatus == 'sakit' ? 'selected' : '' }}>🏥 Sakit</option>
                                 <option value="izin"  {{ $currentStatus == 'izin'  ? 'selected' : '' }}>📝 Izin</option>
@@ -284,11 +286,9 @@
                             <div style="display:flex;gap:6px;align-items:center;">
                                 <a href="{{ route('admin.absen-siswa.show', $siswa->id) }}"
                                     class="btn-icon" title="Detail">✏️</a>
-                                @if($absen)
-                                <button class="btn-icon danger"
+                                <button class="btn-icon danger" style="background:#FFF3E0;color:#E65100;"
                                     onclick="openModalHapus({{ $absen->id }}, '{{ addslashes($siswa->nama) }}')"
-                                    title="Hapus">🗑️</button>
-                                @endif
+                                    title="Batalkan Absen Hari Ini">🔄</button>
                             </div>
                         </td>
                     </tr>
@@ -312,7 +312,8 @@
 const tanggal = '{{ request('tanggal', date('Y-m-d')) }}';
 
 function updateStatusStyle(sel) {
-    sel.className = 'status-select ' + sel.value;
+    const val = sel.value || 'belum';
+    sel.className = 'status-select ' + val;
 }
 
 document.querySelectorAll('.status-select').forEach(function(sel) {
