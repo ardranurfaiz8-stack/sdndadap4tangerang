@@ -405,11 +405,7 @@
                class="nav-item {{ request()->routeIs('guru.profilsiswa.*') ? 'active' : '' }}">
                 <span class="nav-icon">📋</span> Profil Siswa
             </a>
-            <div class="nav-section-title">Laporan</div>
-            <a href="{{ route('guru.rekap.index') }}"
-               class="nav-item {{ request()->routeIs('guru.rekap.*') ? 'active' : '' }}">
-                <span class="nav-icon">📊</span> Rekap Absensi
-            </a>
+
 
         @elseif($role === 'kepala_sekolah')
             <div class="nav-section-title">Menu Utama</div>
