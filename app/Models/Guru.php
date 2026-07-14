@@ -37,13 +37,13 @@ class Guru extends Model
 
    public function absenGuru()
     {
-    return $this->hasMany(Absensi::class, 'guru_id', 'id');
+    return $this->hasMany(AbsenGuru::class, 'guru_id', 'id');
     
     }   
 
     public function absensi()
     {
-    return $this->hasMany(Absensi::class, 'guru_id', 'id');
+    return $this->hasMany(AbsenGuru::class, 'guru_id', 'id');
     }
     public function profil()
     {

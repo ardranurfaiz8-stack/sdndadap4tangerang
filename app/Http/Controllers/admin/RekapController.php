@@ -30,10 +30,10 @@ class RekapController extends Controller
                 $absensi = AbsenSiswa::where('siswa_id', $s->id)
                     ->whereBetween('tanggal', [$startDate, $endDate])->get();
 
-                $hadir = $absensi->where('status', 'hadir')->count();
-                $sakit = $absensi->where('status', 'sakit')->count();
-                $izin  = $absensi->where('status', 'izin')->count();
-                $alpha = $absensi->where('status', 'alpha')->count();
+                $hadir = $absensi->whereIn('status', ['hadir', 'Hadir'])->count();
+                $sakit = $absensi->whereIn('status', ['sakit', 'Sakit'])->count();
+                $izin  = $absensi->whereIn('status', ['izin', 'Izin'])->count();
+                $alpha = $absensi->whereIn('status', ['alpha', 'Alpha'])->count();
                 $total = max($absensi->count(), 1);
                 $pct   = round(($hadir / $total) * 100);
 
@@ -56,10 +56,10 @@ class RekapController extends Controller
                 $absensi = AbsenGuru::where('guru_id', $g->id)
                     ->whereBetween('tanggal', [$startDate, $endDate])->get();
 
-                $hadir = $absensi->where('status', 'hadir')->count();
-                $sakit = $absensi->where('status', 'sakit')->count();
-                $izin  = $absensi->where('status', 'izin')->count();
-                $alpha = $absensi->where('status', 'alpha')->count();
+                $hadir = $absensi->whereIn('status', ['hadir', 'Hadir'])->count();
+                $sakit = $absensi->whereIn('status', ['sakit', 'Sakit'])->count();
+                $izin  = $absensi->whereIn('status', ['izin', 'Izin'])->count();
+                $alpha = $absensi->whereIn('status', ['alpha', 'Alpha'])->count();
                 $total = max($absensi->count(), 1);
                 $pct   = round(($hadir / $total) * 100);
 
@@ -95,10 +95,10 @@ class RekapController extends Controller
 
             if ($tipe === 'siswa') {
                 $total = AbsenSiswa::whereBetween('tanggal', [$sd, $ed])->count();
-                $hadir = AbsenSiswa::whereBetween('tanggal', [$sd, $ed])->where('status', 'hadir')->count();
+                $hadir = AbsenSiswa::whereBetween('tanggal', [$sd, $ed])->whereIn('status', ['hadir', 'Hadir'])->count();
             } else {
                 $total = AbsenGuru::whereBetween('tanggal', [$sd, $ed])->count();
-                $hadir = AbsenGuru::whereBetween('tanggal', [$sd, $ed])->where('status', 'hadir')->count();
+                $hadir = AbsenGuru::whereBetween('tanggal', [$sd, $ed])->whereIn('status', ['hadir', 'Hadir'])->count();
             }
 
             $trendBulanan->push([

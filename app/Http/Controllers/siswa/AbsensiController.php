@@ -16,8 +16,21 @@ class AbsensiController extends Controller
         $kelasFilter = request('kelas', '');
         $search      = request('search', '');
 
-        // Ambil semua siswa dengan filter kelas & search
+        $user = Auth::user();
+        $siswaLog = Siswa::where('user_id', $user->id)->first();
+        if (!$siswaLog) {
+            $namaClean = str_replace('Siswa_', '', $user->name);
+            $siswaLog = Siswa::where('nama', 'like', "%{$namaClean}%")->first();
+        }
+
+        // Ambil data siswa hanya untuk siswa yang sedang login
         $query = Siswa::query();
+        if ($siswaLog) {
+            $query->where('id', $siswaLog->id);
+        } else {
+            $query->where('id', 0); // Jika tidak ditemukan, jangan tampilkan apa-apa
+        }
+
         if ($kelasFilter) $query->where('kelas', $kelasFilter);
         if ($search)      $query->where('nama', 'like', "%{$search}%");
         $semuaSiswa = $query->orderBy('nama')->get();
@@ -38,10 +51,10 @@ class AbsensiController extends Controller
 
         // Counter per status
         $counter = [
-            'hadir' => collect($siswas)->where('status', 'hadir')->count(),
-            'sakit' => collect($siswas)->where('status', 'sakit')->count(),
-            'izin'  => collect($siswas)->where('status', 'izin')->count(),
-            'alpha' => collect($siswas)->where('status', 'alpha')->count(),
+            'hadir' => collect($siswas)->whereIn('status', ['hadir', 'Hadir'])->count(),
+            'sakit' => collect($siswas)->whereIn('status', ['sakit', 'Sakit'])->count(),
+            'izin'  => collect($siswas)->whereIn('status', ['izin', 'Izin'])->count(),
+            'alpha' => collect($siswas)->whereIn('status', ['alpha', 'Alpha'])->count(),
         ];
 
         // Dropdown kelas

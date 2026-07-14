@@ -29,14 +29,14 @@ class AbsenGuruController extends Controller
 
         $logScanHariIni = AbsenGuru::with('guru')
             ->whereDate('tanggal', now()->toDateString())
-            ->where('status', 'hadir')
+            ->whereIn('status', ['hadir', 'Hadir'])
             ->orderBy('jam_masuk')
             ->get();
 
-        $hadirHariIni = AbsenGuru::whereDate('tanggal', $today)->where('status', 'hadir')->count();
-        $izinHariIni  = AbsenGuru::whereDate('tanggal', $today)->where('status', 'izin')->count();
-        $sakitHariIni = AbsenGuru::whereDate('tanggal', $today)->where('status', 'sakit')->count();
-        $alphaHariIni = AbsenGuru::whereDate('tanggal', $today)->where('status', 'alpha')->count();
+        $hadirHariIni = AbsenGuru::whereDate('tanggal', $today)->whereIn('status', ['hadir', 'Hadir'])->count();
+        $izinHariIni  = AbsenGuru::whereDate('tanggal', $today)->whereIn('status', ['izin', 'Izin'])->count();
+        $sakitHariIni = AbsenGuru::whereDate('tanggal', $today)->whereIn('status', ['sakit', 'Sakit'])->count();
+        $alphaHariIni = AbsenGuru::whereDate('tanggal', $today)->whereIn('status', ['alpha', 'Alpha'])->count();
 
         return view('guru.absen_guru', compact(
             'guruList', 'selectedGuru',

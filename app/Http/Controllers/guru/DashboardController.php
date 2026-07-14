@@ -15,6 +15,14 @@ class DashboardController extends Controller
     {
         $user  = Auth::user();
         $guru  = Guru::where('user_id', $user->id)->first();
+        
+        // Fallback: Jika guru belum ter-link user_id, coba cari berdasarkan nama
+        if (!$guru) {
+            // Hilangkan kata "Guru_" jika ada di nama user
+            $namaClean = str_replace('Guru_', '', $user->name);
+            $guru = Guru::where('nama', 'like', "%{$namaClean}%")->first();
+        }
+
         $today = Carbon::today()->toDateString();
         $bulan = Carbon::now()->month;
         $tahun = Carbon::now()->year;
