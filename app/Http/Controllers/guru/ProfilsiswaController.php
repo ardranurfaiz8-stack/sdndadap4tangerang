@@ -56,10 +56,24 @@ class ProfilsiswaController extends Controller
             'alamat'        => 'nullable|string',
         ]);
 
-        Siswa::create($request->only([
+        $siswaData = $request->only([
             'nama', 'nis', 'kelas', 'jenis_kelamin',
             'tanggal_lahir', 'tempat_lahir', 'nama_orang_tua', 'no_telp', 'alamat'
-        ]));
+        ]);
+
+        $defaultEmail = strtolower(str_replace(' ', '', $request->nama)) . ($request->nis ?? rand(100,999)) . '@siswa.com';
+        
+        $user = \App\Models\User::create([
+            'name'     => $request->nama,
+            'email'    => $defaultEmail,
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+            'role'     => 'siswa',
+        ]);
+
+        $siswaData['user_id'] = $user->id;
+        $siswaData['email'] = $defaultEmail;
+
+        Siswa::create($siswaData);
 
         return redirect()->route('guru.profil_siswa.index')
             ->with('success', 'Data siswa berhasil ditambahkan! ✅');

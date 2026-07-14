@@ -36,14 +36,14 @@ class SiswaController extends Controller
         $request->validate([
             'nama'       => 'required|string|max:255',
             'nis'        => 'nullable|string|unique:siswas,nis',
-            'user_email' => 'required|email|unique:users,email',
-            'password'   => 'required|min:8',
         ]);
+
+        $defaultEmail = strtolower(str_replace(' ', '', $request->nama)) . ($request->nis ?? rand(100,999)) . '@siswa.com';
 
         $user = User::create([
             'name'     => $request->nama,
-            'email'    => $request->user_email,
-            'password' => Hash::make($request->password),
+            'email'    => $defaultEmail,
+            'password' => Hash::make('password123'),
             'role'     => 'siswa',
         ]);
 
@@ -51,7 +51,7 @@ class SiswaController extends Controller
             'user_id'       => $user->id,
             'nama'          => $request->nama,
             'nis'           => $request->nis,
-            'email'         => $request->user_email,
+            'email'         => $defaultEmail,
             'kelas'         => $request->kelas,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tempat_lahir'  => $request->tempat_lahir,
