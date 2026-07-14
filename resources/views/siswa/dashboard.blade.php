@@ -7,31 +7,31 @@
 {{-- Stats Grid --}}
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-icon red">👨‍🏫</div>
-        <div>
-            <div class="stat-value">{{ $totalGuru }}</div>
-            <div class="stat-label">Total Guru</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon blue">👨‍🎓</div>
-        <div>
-            <div class="stat-value">{{ $totalSiswa }}</div>
-            <div class="stat-label">Total Siswa</div>
-        </div>
-    </div>
-    <div class="stat-card">
         <div class="stat-icon green">✅</div>
         <div>
-            <div class="stat-value">{{ $hadirHariIni }}</div>
-            <div class="stat-label">Hadir Hari Ini</div>
+            <div class="stat-value">{{ $rekapBulan['hadir'] ?? 0 }}</div>
+            <div class="stat-label">Hadir Bulan Ini</div>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon amber">⚠️</div>
+        <div class="stat-icon blue">🩺</div>
         <div>
-            <div class="stat-value">{{ $alphaHariIni }}</div>
-            <div class="stat-label">Alpha Hari Ini</div>
+            <div class="stat-value">{{ $rekapBulan['sakit'] ?? 0 }}</div>
+            <div class="stat-label">Sakit Bulan Ini</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amber">📄</div>
+        <div>
+            <div class="stat-value">{{ $rekapBulan['izin'] ?? 0 }}</div>
+            <div class="stat-label">Izin Bulan Ini</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red">❌</div>
+        <div>
+            <div class="stat-value">{{ $rekapBulan['alpha'] ?? 0 }}</div>
+            <div class="stat-label">Alpha Bulan Ini</div>
         </div>
     </div>
 </div>

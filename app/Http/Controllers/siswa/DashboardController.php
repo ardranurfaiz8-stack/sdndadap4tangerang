@@ -8,56 +8,63 @@ use App\Models\Siswa;
 use App\Models\AbsenGuru;
 use App\Models\AbsenSiswa;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+
+        // Tambahkan pengaman jika $user belum ter-load (misal session expired)
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $siswa = Siswa::where('user_id', $user->id)->first();
+        if (!$siswa) {
+            $namaClean = str_replace('Siswa_', '', $user->name);
+            $siswa = Siswa::where('nama', 'like', "%{$namaClean}%")->first();
+        }
+
         $today = Carbon::today()->toDateString();
+        $bulan = Carbon::now()->month;
+        $tahun = Carbon::now()->year;
 
-        $totalGuru  = Guru::count();
-        $totalSiswa = Siswa::count();
+        $rekapBulan = ['hadir' => 0, 'sakit' => 0, 'izin' => 0, 'alpha' => 0];
+        $absensiTerbaru = collect();
 
-        $hadirHariIni = AbsenGuru::where('tanggal', $today)->where('status', 'hadir')->count()
-                      + AbsenSiswa::where('tanggal', $today)->where('status', 'hadir')->count();
+        if ($siswa) {
+            $absenBulan = AbsenSiswa::where('siswa_id', $siswa->id)
+                ->whereMonth('tanggal', $bulan)
+                ->whereYear('tanggal', $tahun)
+                ->get();
 
-        $alphaHariIni = AbsenGuru::where('tanggal', $today)->where('status', 'alpha')->count()
-                      + AbsenSiswa::where('tanggal', $today)->where('status', 'alpha')->count();
+            $rekapBulan = [
+                'hadir' => $absenBulan->whereIn('status', ['Hadir', 'hadir'])->count(),
+                'sakit' => $absenBulan->whereIn('status', ['Sakit', 'sakit'])->count(),
+                'izin'  => $absenBulan->whereIn('status', ['Izin', 'izin'])->count(),
+                'alpha' => $absenBulan->whereIn('status', ['Alpha', 'alpha'])->count(),
+            ];
 
-        $absenGuru = AbsenGuru::with('guru')
-            ->where('tanggal', $today)
-            ->latest()
-            ->take(10)
-            ->get()
-            ->map(fn($a) => [
-                'nama'      => $a->guru->nama ?? '-',
-                'kelas'     => $a->guru->mata_pelajaran ?? '-',
-                'tipe'      => 'Guru',
-                'jam_masuk' => $a->jam_masuk,
-                'status'    => $a->status,
-            ]);
-
-        $absenSiswa = AbsenSiswa::with('siswa')
-            ->where('tanggal', $today)
-            ->latest()
-            ->take(10)
-            ->get()
-            ->map(fn($a) => [
-                'nama'      => $a->siswa->nama ?? '-',
-                'kelas'     => $a->siswa->kelas ?? '-',
-                'tipe'      => 'Siswa',
-                'jam_masuk' => $a->jam_masuk,
-                'status'    => $a->status,
-            ]);
-
-        $absensiTerbaru = $absenGuru->concat($absenSiswa)->sortByDesc('jam_masuk')->take(10)->values();
+            $absensiTerbaru = AbsenSiswa::with('siswa')
+                ->where('siswa_id', $siswa->id)
+                ->latest('tanggal')
+                ->latest('jam_masuk')
+                ->take(10)
+                ->get()
+                ->map(fn($a) => [
+                    'nama'      => $a->siswa->nama ?? '-',
+                    'kelas'     => $a->siswa->kelas ?? '-',
+                    'tipe'      => 'Siswa',
+                    'jam_masuk' => $a->jam_masuk,
+                    'status'    => $a->status,
+                ]);
+        }
 
         return view('siswa.dashboard', compact(
-            'totalGuru',
-            'totalSiswa',
-            'hadirHariIni',
-            'alphaHariIni',
-            'absensiTerbaru',
+            'rekapBulan',
+            'absensiTerbaru'
         ));
     }
 }
